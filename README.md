@@ -1,4 +1,41 @@
 # MSiA423 Template Repository
+Author: Ruofei Wu
+
+# Project Charter
+### Background
+The telecommunication industry is a highly competitive market 
+where customers can choose from various service providers and actively 
+switch from one operator to another. Based on some research, the telecom 
+industry experiences 15-25% annual churn rate on average. Given the fact 
+that it costs more to acquire a new customer than to retain an existing one, 
+customer retention has become more important than customer acquisition. 
+Therefore, it is highly important to predict which customers are at risk of 
+churn so that the Orange Telecom company can come up with certain strategies
+to retain existing customers.
+
+### Vision
+Retain existing customers, reduce customer churn
+
+### Mission
+Using the data provided (https://www.kaggle.com/datasets/mnassrib/telecom-churn-datasets), 
+a customer churn prediction model that provides accurate predictions 
+regarding which customers are at high risk of churn using customer 
+activity data will be built to help the Orange Telecom company develop 
+focused customer retention program. With the input of customer activity 
+related features, the model will output a churn label indicating whether 
+the customer is likely to cancel the subscription.
+
+### Success Criteria
+* Model Performance Metrics
+  * Misclassification Rate 
+  * Confusion Matrix
+  * Accepted Criteria - Misclassification Rate < 20%, i.e., Accuracy > 80%
+* Business Metrics
+  * Fraction of customers retained for one year
+  * Average customer lifetime
+
+
+
 
 # Table of Contents
 * [Directory structure ](#Directory-structure)
