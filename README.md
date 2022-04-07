@@ -1,4 +1,4 @@
-# MSiA423 Template Repository
+# Developing focused customer retention program through a customer churn model
 Author: Ruofei Wu
 
 # Project Charter
