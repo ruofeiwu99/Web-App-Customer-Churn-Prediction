@@ -1,7 +1,18 @@
 # Developing focused customer retention program through a customer churn model
 Author: Ruofei Wu
 
-# Project Charter
+# Table of Contents
+* [Project charter ](#Project-charter)
+* [Directory structure ](#Directory-structure)
+* [Running the app ](#Running-the-app)
+	* [1. Initialize the database ](#1.-Initialize-the-database)
+	* [2. Configure Flask app ](#2.-Configure-Flask-app)
+	* [3. Run the Flask app ](#3.-Run-the-Flask-app)
+* [Testing](#Testing)
+* [Mypy](#Mypy)
+* [Pylint](#Pylint)
+
+## Project charter
 ### Background
 The telecommunication industry is a highly competitive market 
 where customers can choose from various service providers and actively 
@@ -33,21 +44,6 @@ the customer is likely to cancel the subscription.
 * Business Metrics
   * Fraction of customers retained for one year
   * Average customer lifetime
-
-
-
-
-# Table of Contents
-* [Directory structure ](#Directory-structure)
-* [Running the app ](#Running-the-app)
-	* [1. Initialize the database ](#1.-Initialize-the-database)
-	* [2. Configure Flask app ](#2.-Configure-Flask-app)
-	* [3. Run the Flask app ](#3.-Run-the-Flask-app)
-* [Testing](#Testing)
-* [Mypy](#Mypy)
-* [Pylint](#Pylint)
-
-
 
 ## Directory structure 
 
