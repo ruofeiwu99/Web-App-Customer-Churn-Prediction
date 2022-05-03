@@ -10,6 +10,7 @@ __pycache__/
 
 data/*
 !data/sample/
+!data/raw/
 !data/external/
 config/local/*
 !.gitkeep
