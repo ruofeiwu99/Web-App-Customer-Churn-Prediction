@@ -26,4 +26,4 @@ if SQLALCHEMY_DATABASE_URI is None:
 # file paths
 DATA_PATH = os.environ.get('DATA_PATH')
 if DATA_PATH is None:
-    DATA_PATH = 'raw/telecom_churn_data.csv'
+    DATA_PATH = 'raw/raw_data.csv'
