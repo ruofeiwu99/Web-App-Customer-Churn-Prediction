@@ -3,43 +3,31 @@
 import argparse
 import logging.config
 
-from config.flaskconfig import SQLALCHEMY_DATABASE_URI
-from src.add_songs import create_db, add_song
+from src.s3 import download_file_from_s3, upload_file_to_s3
 
 logging.config.fileConfig('config/logging/local.conf')
-logger = logging.getLogger('penny-lane-pipeline')
+logger = logging.getLogger('__name__')
 
 if __name__ == '__main__':
 
     # Add parsers for both creating a database and adding songs to it
     parser = argparse.ArgumentParser(
         description="Create and/or add data to database")
-    subparsers = parser.add_subparsers(dest='subparser_name')
+    parser.add_argument('--download', default=False, action='store_true',
+                        help="If True, will download the data from S3. If False, will upload data to S3")
 
-    # Sub-parser for creating a database
-    sp_create = subparsers.add_parser("create_db",
-                                      description="Create database")
-    sp_create.add_argument("--engine_string", default=SQLALCHEMY_DATABASE_URI,
-                           help="SQLAlchemy connection URI for database")
+    parser.add_argument('--s3_path', default='s3://2022-msia423-wu-ruofei/raw/raw_data.csv',
+                        help="s3 data path to download or upload data")
 
-    # Sub-parser for ingesting new data
-    sp_ingest = subparsers.add_parser("ingest",
-                                      description="Add data to database")
-    sp_ingest.add_argument("--artist", default="Emancipator",
-                           help="Artist of song to be added")
-    sp_ingest.add_argument("--title", default="Minor Cause",
-                           help="Title of song to be added")
-    sp_ingest.add_argument("--album", default="Dusk to Dawn",
-                           help="Album of song being added")
-    sp_ingest.add_argument("--engine_string",
-                           default='sqlite:///data/tracks.db',
-                           help="SQLAlchemy connection URI for database")
+    parser.add_argument('--local_path', default='data/raw/raw_data.csv',
+                        help="local data path to store or upload data")
 
     args = parser.parse_args()
-    sp_used = args.subparser_name
-    if sp_used == 'create_db':
-        create_db(args.engine_string)
-    elif sp_used == 'ingest':
-        add_song(args)
+
+    if args.download:
+        download_file_from_s3(args.local_path, args.s3_path)
     else:
-        parser.print_help()
+        upload_file_to_s3(args.local_path, args.s3_path)
+
+
+
