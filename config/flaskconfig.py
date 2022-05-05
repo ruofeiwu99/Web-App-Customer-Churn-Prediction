@@ -19,11 +19,6 @@ db_name = os.environ.get("DATABASE_NAME")
 SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
 if SQLALCHEMY_DATABASE_URI is None:
     if host is None:
-        SQLALCHEMY_DATABASE_URI = 'sqlite:///data/tracks.db'
+        SQLALCHEMY_DATABASE_URI = f'sqlite:///data/data.db'
     else:
-        SQLALCHEMY_DATABASE_URI = "{conn_type}://{user}:{password}@{host}:{port}/{db_name}"
-
-# file paths
-DATA_PATH = os.environ.get('DATA_PATH')
-if DATA_PATH is None:
-    DATA_PATH = 'raw/raw_data.csv'
+        SQLALCHEMY_DATABASE_URI = f"{conn_type}://{user}:{password}@{host}:{port}/{db_name}"
