@@ -17,8 +17,10 @@ port = os.environ.get("MYSQL_PORT")
 db_name = os.environ.get("DATABASE_NAME")
 
 SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
-if SQLALCHEMY_DATABASE_URI is None:
-    if host is None:
-        SQLALCHEMY_DATABASE_URI = f'sqlite:///data/data.db'
-    else:
-        SQLALCHEMY_DATABASE_URI = f"{conn_type}://{user}:{password}@{host}:{port}/{db_name}"
+
+if SQLALCHEMY_DATABASE_URI is not None:
+    pass
+elif host is None:
+    SQLALCHEMY_DATABASE_URI = f'sqlite:///data/data.db'
+else:
+    SQLALCHEMY_DATABASE_URI = f"{conn_type}://{user}:{password}@{host}:{port}/{db_name}"
