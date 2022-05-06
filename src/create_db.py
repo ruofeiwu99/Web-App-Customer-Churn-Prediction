@@ -37,7 +37,7 @@ class Customer(Base):
     total_intl_calls = Column(Integer, unique=False, nullable=True)
     total_intl_charge = Column(Float, unique=False, nullable=True)
     customer_service_calls = Column(Integer, unique=False, nullable=True)
-    churn = Column(Boolean, unique=False, nullable=False)
+    churn = Column(Integer, unique=False, nullable=False)
 
     def __repr__(self):
         return f'<Customer {self.id}>'
@@ -51,7 +51,6 @@ def create_db(engine_string: str) -> None:
             to write to
 
     Returns: None
-
     """
     engine = sqlalchemy.create_engine(engine_string)
 
@@ -91,7 +90,7 @@ class ChurnManager:
             session.add_all(data_list)
             session.commit()
         except sqlalchemy.exc.OperationalError as e:
-            logger.error("You might have connection error. Have you configured SQLALCHEMY_DATABASE_URI"
+            logger.error("You might have connection error. Have you configured SQLALCHEMY_DATABASE_URI "
                          "variable correctly and connected to Northwestern VPN? Error: %s ", e)
         except sqlite3.OperationalError as e:
             logger.error("Error page returned. Not able to add customer data to local sqlite "
