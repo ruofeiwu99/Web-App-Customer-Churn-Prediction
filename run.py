@@ -25,9 +25,9 @@ if __name__ == '__main__':
 
     sp_upload = subparsers.add_parser("upload_data", description="Upload data from s3")
     sp_upload.add_argument('--s3_path', default='s3://2022-msia423-wu-ruofei/raw/raw_data.csv',
-                           help="s3 data path to upload data")  # CHANGE THIS TO raw/raw_data.csv
+                           help="s3 data path to upload data")
     sp_upload.add_argument('--local_path', default='data/raw/raw_data.csv',
-                           help="local data path to upload data")  # CHANGE THIS TO raw/raw_data.csv
+                           help="local data path to upload data")
 
     # subparser for creating a database
     sp_create = subparsers.add_parser("create_db", description="Create database")
@@ -50,6 +50,7 @@ if __name__ == '__main__':
         upload_file_to_s3(args.local_path, args.s3_path)
     elif sp_used == 'create_db':
         create_db(args.engine_string)
+
     elif sp_used == 'ingest_data':
         cm = ChurnManager(engine_string=args.engine_string)
         cm.add_customer_data(args.input_path)
