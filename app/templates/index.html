@@ -7,37 +7,79 @@
 
 <body>
     <h3>
-         <a href = "{{ url_for('index') }}">Penny Lane Music Recommender</a>
+         Customer Churn Prediction
     </h3>
 
     <hr/>
     <table>
          <thead>
             <tr>
-               <th>Title</th>
-               <th>Artist</th>
-               <th>Album</th>
+               <th>id</th>
+               <th>international_plan</th>
+               <th>voice_mail_plan</th>
+               <th>number_vmail_messages</th>
+               <th>total_day_minutes</th>
+               <th>total_eve_minutes</th>
+               <th>total_night_minutes</th>
+               <th>total_intl_minutes</th>
+               <th>total_intl_calls</th>
+               <th>customer_service_calls</th>
+               <th>churn</th>
             </tr>
          </thead>
 
          <tbody>
-            {% for track in tracks %}
+            {% for customer in customers %}
                <tr>
-                   <td>{{ track.title }}</td>
-                   <td>{{ track.artist }}</td>
-                   <td>{{ track.album }}</td>
+                   <td style="text-align:center">{{ customer.id }}</td>
+                   <td style="text-align:center">{{ customer.international_plan }}</td>
+                   <td style="text-align:center">{{ customer.voice_mail_plan }}</td>
+                   <td style="text-align:center">{{ customer.number_vmail_messages }}</td>
+                   <td style="text-align:center">{{ customer.total_day_minutes }}</td>
+                   <td style="text-align:center">{{ customer.total_eve_minutes }}</td>
+                   <td style="text-align:center">{{ customer.total_night_minutes }}</td>
+                   <td style="text-align:center">{{ customer.total_intl_minutes }}</td>
+                   <td style="text-align:center">{{ customer.total_intl_calls }}</td>
+                   <td style="text-align:center">{{ customer.customer_service_calls }}</td>
+                   <td style="text-align:center">{{ customer.churn }}</td>
                </tr>
             {% endfor %}
          </tbody>
       </table>
-      <form action="{{ url_for('add_entry') }}" method=post class=add-entry>
-      <dl>
-        <input type=text size=15 name=title placeholder="Title">
-        <input type=text size=15 name=artist placeholder="Artist">
-        <input type=text size=15 name=album placeholder="Album">
-        <input type=submit value=Add>
-      </dl>
+
+    <form action="{{ url_for('add_entry') }}" method=post class=add-entry>
+        <dl>
+            <input type=text size=25 name=id placeholder="Customer ID">
+            <input type=text size=25 name=intl_plan placeholder="International Plan">
+            <input type=text size=25 name=vm_plan placeholder="Voice Mail Plan">
+            <input type=text size=25 name=vm_msg placeholder="Voice Mail Msgs">
+            <input type=text size=25 name=day_mins placeholder="Total Day Mins">
+            <input type=text size=25 name=eve_mins placeholder="Total Eve Mins">
+            <input type=text size=25 name=night_mins placeholder="Total Night Mins">
+            <input type=text size=25 name=intl_mins placeholder="Total International Mins">
+            <input type=text size=25 name=intl_calls placeholder="Total International Calls">
+            <input type=text size=25 name=service_calls placeholder="Customer Service Calls">
+            <input type=text size=25 name=churn_label placeholder="Churn Label">
+            <input type=submit value=Add>
+        </dl>
     </form>
+
+    <form action="{{ url_for('predict_churn') }}" method=post class=predict>
+        <dl>
+            <input type=text size=25 name=id placeholder="Customer ID">
+            <input type=text size=25 name=intl_plan placeholder="International Plan">
+            <input type=text size=25 name=vm_plan placeholder="Voice Mail Plan">
+            <input type=text size=25 name=vm_msg placeholder="Voice Mail Msgs">
+            <input type=text size=25 name=day_mins placeholder="Total Day Mins">
+            <input type=text size=25 name=eve_mins placeholder="Total Eve Mins">
+            <input type=text size=25 name=night_mins placeholder="Total Night Mins">
+            <input type=text size=25 name=intl_mins placeholder="Total International Mins">
+            <input type=text size=25 name=intl_calls placeholder="Total International Calls">
+            <input type=text size=25 name=service_calls placeholder="Customer Service Calls">
+            <input type=submit value=Predict>
+        </dl>
+    </form>
+
 
 </body>
 </html>
