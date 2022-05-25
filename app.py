@@ -2,11 +2,14 @@ import logging.config
 import sqlite3
 import traceback
 
+import pandas as pd
+import yaml
 import sqlalchemy.exc
 from flask import Flask, render_template, request, redirect, url_for
 
 # For setting up the Flask-SQLAlchemy database session
-from src.add_songs import Tracks, TrackManager
+from src.create_db import ChurnManager, Customer
+from src.modeling import pred_one_record
 
 # Initialize the Flask application
 app = Flask(__name__, template_folder="app/templates",
@@ -29,26 +32,26 @@ logger.debug(
     , app.config["PORT"])
 
 # Initialize the database session
-track_manager = TrackManager(app)
+churn_manager = ChurnManager(app)
 
 
 @app.route('/')
 def index():
-    """Main view that lists songs in the database.
+    """Main view of customer data from churn table in the database.
 
-    Create view into index page that uses data queried from Track database and
+    Create view into index page that uses data queried from Customer database and
     inserts it into the app/templates/index.html template.
 
     Returns:
         Rendered html template
 
     """
-
     try:
-        tracks = track_manager.session.query(Tracks).limit(
-            app.config["MAX_ROWS_SHOW"]).all()
+        customers = churn_manager.session.query(Customer).order_by(Customer.id.desc()).\
+            limit(app.config["MAX_ROWS_SHOW"])
+
         logger.debug("Index page accessed")
-        return render_template('index.html', tracks=tracks)
+        return render_template('index.html', customers=customers)
     except sqlite3.OperationalError as e:
         logger.error(
             "Error page returned. Not able to query local sqlite database: %s."
@@ -69,18 +72,70 @@ def index():
 
 @app.route('/add', methods=['POST'])
 def add_entry():
-    """View that process a POST with new song input
+    """View that process a POST with new customer record
 
     Returns:
         redirect to index page
     """
+    try:
+        churn_manager.add_one_record(int(request.form['id']), request.form['intl_plan'], request.form['vm_plan'],
+                                     int(request.form['vm_msg']), float(request.form['day_mins']),
+                                     float(request.form['eve_mins']), float(request.form['night_mins']),
+                                     float(request.form['intl_mins']), int(request.form['intl_calls']),
+                                     int(request.form['service_calls']), request.form['churn_label'])
+        logger.info("One customer record added: customer id %s", request.form['id'])
+        return redirect(url_for('index'))
+    except sqlite3.OperationalError as e:
+        logger.error(
+            "Error page returned. Not able to add song to local sqlite "
+            "database: %s. Error: %s ",
+            app.config['SQLALCHEMY_DATABASE_URI'], e)
+        return render_template('error.html')
+    except sqlalchemy.exc.OperationalError as e:
+        logger.error(
+            "Error page returned. Not able to add song to MySQL database: %s. "
+            "Error: %s ",
+            app.config['SQLALCHEMY_DATABASE_URI'], e)
+        return render_template('error.html')
+
+
+@app.route("/predict", methods=["POST"])
+def predict_churn():
+    """
+        Predict customer churn given a POST form of input data.
+        Returns:
+            Redirect to index page
+    """
+    record = {'id': int(request.form['id']),
+              'international_plan': request.form['intl_plan'],
+              'voice_mail_plan': request.form['vm_plan'],
+              'number_vmail_messages': int(request.form['vm_msg']),
+              'total_day_minutes': float(request.form['day_mins']),
+              'total_eve_minutes': float(request.form['eve_mins']),
+              'total_night_minutes': float(request.form['night_mins']),
+              'total_intl_minutes': float(request.form['intl_mins']),
+              'total_intl_calls': int(request.form['intl_calls']),
+              'customer_service_calls': int(request.form['service_calls'])}
+    record_df = pd.DataFrame(record, index=[0])
+
+    # Ensure all columns (& order) match the original training data
+    # validated_df = model.validate_dataframe(input_df)
+    with open('config/config.yaml', "r") as f:
+        config = yaml.load(f, Loader=yaml.FullLoader)
+
+    churn_pred = pred_one_record(**config['modeling']['pred_one_record'], record_df=record_df)
+    if churn_pred == 0:
+        final_churn_pred = 'No'
+    else:
+        final_churn_pred = 'Yes'
 
     try:
-        track_manager.add_track(artist=request.form['artist'],
-                                album=request.form['album'],
-                                title=request.form['title'])
-        logger.info("New song added: %s by %s", request.form['title'],
-                    request.form['artist'])
+        churn_manager.add_one_record(int(request.form['id']), request.form['intl_plan'], request.form['vm_plan'],
+                                     int(request.form['vm_msg']), float(request.form['day_mins']),
+                                     float(request.form['eve_mins']), float(request.form['night_mins']),
+                                     float(request.form['intl_mins']), int(request.form['intl_calls']),
+                                     int(request.form['service_calls']), final_churn_pred)
+        logger.info("One customer record added: customer id %s", request.form['id'])
         return redirect(url_for('index'))
     except sqlite3.OperationalError as e:
         logger.error(
