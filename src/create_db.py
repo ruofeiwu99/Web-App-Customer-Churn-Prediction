@@ -37,7 +37,7 @@ class Customer(Base):
     total_intl_calls = Column(Integer, unique=False, nullable=True)
     total_intl_charge = Column(Float, unique=False, nullable=True)
     customer_service_calls = Column(Integer, unique=False, nullable=True)
-    churn = Column(Integer, unique=False, nullable=False)
+    churn = Column(String(3), unique=False, nullable=False)
 
     def __repr__(self):
         return f'<Customer {self.id}>'
@@ -97,3 +97,17 @@ class ChurnManager:
                          "database. Is it the right path? Error: %s ", e)
         else:
             logger.info("%d records were added to the table", len(data_list))
+
+    def add_one_record(self, cust_id: int, international_plan: str,
+                       voice_mail_plan: str, number_vmail_messages: int, total_day_minutes: float,
+                       total_eve_minutes: float, total_night_minutes: float, total_intl_minutes: float,
+                       total_intl_calls: int, customer_service_calls: int, churn: str):
+        session = self.session
+        customer = Customer(id=cust_id, international_plan=international_plan, voice_mail_plan=voice_mail_plan,
+                            number_vmail_messages=number_vmail_messages, total_day_minutes=total_day_minutes,
+                            total_eve_minutes=total_eve_minutes, total_night_minutes=total_night_minutes,
+                            total_intl_minutes=total_intl_minutes, total_intl_calls=total_intl_calls,
+                            customer_service_calls=customer_service_calls, churn=churn)
+        session.add(customer)
+        session.commit()
+        logger.info("One customer record added to database: customer id %s", cust_id)
