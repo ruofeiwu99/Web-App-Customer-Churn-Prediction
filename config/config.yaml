@@ -1,0 +1,28 @@
+data_handling:
+  process_data:
+    raw_data_path: data/raw/raw_data.csv
+    final_data_path: data/final/final_data.csv
+modeling:
+  train_model:
+    data_path: data/final/final_data.csv
+    model_path: models/rf_model.pkl
+    X_test_path: data/sample/X_test_data.csv
+    y_test_path: data/sample/y_test_data.csv
+    used_features: ['international_plan', 'voice_mail_plan', 'number_vmail_messages',
+                    'total_day_minutes', 'total_eve_minutes', 'total_night_minutes',
+                    'total_intl_minutes', 'total_intl_calls', 'customer_service_calls']
+    test_size: 0.2
+    random_state: 42
+  pred_one_record:
+    model_path: models/rf_model.pkl
+    columns: ['international_plan', 'voice_mail_plan', 'number_vmail_messages',
+              'total_day_minutes', 'total_eve_minutes', 'total_night_minutes',
+              'total_intl_minutes', 'total_intl_calls', 'customer_service_calls']
+  make_predictions:
+    model_path: models/rf_model.pkl
+    X_test_path: data/sample/X_test_data.csv
+    y_test_path: data/sample/y_test_data.csv
+    pred_res_path: deliverables/pred_res.csv
+  eval_performance:
+    pred_res_path: deliverables/pred_res.csv
+    performance_path: deliverables/model_performance.txt
