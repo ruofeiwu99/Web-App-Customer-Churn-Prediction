@@ -6,7 +6,7 @@ import logging.config
 import yaml
 
 from src.s3 import download_file_from_s3, upload_file_to_s3
-from src.data_handling import process_data
+from src.process_data import process_data
 from src.create_db import ChurnManager, create_db
 from src.modeling import train_model, make_predictions, eval_performance
 from config.flaskconfig import SQLALCHEMY_DATABASE_URI
@@ -24,19 +24,22 @@ if __name__ == '__main__':
 
     subparsers = parser.add_subparsers(dest='command')
 
-    sp_download = subparsers.add_parser("download_data", description="Download data from s3")
-    sp_download.add_argument('--s3_path', default='s3://2022-msia423-wu-ruofei/raw/raw_data.csv',
-                             help="s3 data path to download data")    # CHANGE THIS TO raw/raw_data.csv
-    sp_download.add_argument('--local_path', default='data/raw/raw_data.csv',
-                             help="local data path to store data")    # CHANGE THIS TO raw/raw_data.csv
-
+    # subparser for upload raw data to S3
     sp_upload = subparsers.add_parser("upload_data", description="Upload data from s3")
     sp_upload.add_argument('--s3_path', default='s3://2022-msia423-wu-ruofei/raw/raw_data.csv',
                            help="s3 data path to upload data")
-    sp_upload.add_argument('--local_path', default='data/raw/raw_data.csv',
+    sp_upload.add_argument('--local_data_path', default='data/raw/raw_data.csv',
                            help="local data path to upload data")
+
+    # subparser for acquire data from S3
+    sp_download = subparsers.add_parser("acquire_data", description="Download data from s3")
+    sp_download.add_argument('--s3_path', default='s3://2022-msia423-wu-ruofei/raw/raw_data.csv',
+                             help="s3 data path to download data")  # CHANGE THIS TO raw/raw_data.csv
+    sp_download.add_argument('--local_data_path', default='data/raw/raw_data.csv',
+                             help="local data path to store data")  # CHANGE THIS TO raw/raw_data.csv
+
     # subparser for processing data
-    sp_process = subparsers.add_parser("process_raw", description="Process raw data")
+    sp_process = subparsers.add_parser("process_data", description="Process raw data")
 
     # subparser for creating a database
     sp_create = subparsers.add_parser("create_db", description="Create database")
@@ -66,11 +69,12 @@ if __name__ == '__main__':
     with open(args.config, "r") as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
 
-    if sp_used == 'download_data':
-        download_file_from_s3(args.local_path, args.s3_path)
-    elif sp_used == 'upload_data':
-        upload_file_to_s3(args.local_path, args.s3_path)
-    elif sp_used == 'process_raw':
+    if sp_used == 'upload_data':
+        upload_file_to_s3(args.local_data_path, args.s3_path)
+    elif sp_used == 'acquire_data':
+        download_file_from_s3(args.local_data_path, args.s3_path)
+        logger.info('Raw data saved to %s', args.local_path)
+    elif sp_used == 'process_data':
         process_data(**config['data_handling']['process_data'])
         logger.info("Final data saved.")
     elif sp_used == 'create_db':
