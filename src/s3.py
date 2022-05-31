@@ -1,11 +1,12 @@
-import logging
+import logging.config
 import re
 import typing
 
 import boto3
 import botocore
 
-logger = logging.getLogger(__name__)
+logging.config.fileConfig('config/logging/local.conf')
+logger = logging.getLogger('s3-interaction')
 
 
 def parse_s3(s3path: str) -> typing.Tuple[str, str]:
