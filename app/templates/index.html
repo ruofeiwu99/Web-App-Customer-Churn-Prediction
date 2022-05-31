@@ -10,6 +10,12 @@
          Customer Churn Prediction
     </h3>
 
+    <h4>Will a customer stay or churn?</h4>
+    <p style="font-size: medium">
+        You can either add a new customer record by entering customer information and clicking on Add
+        OR make a prediction regarding whether a customer will churn by entering values and clicking on Predict.
+    </p>
+
     <hr/>
     <table>
          <thead>
@@ -50,8 +56,8 @@
     <form action="{{ url_for('add_entry') }}" method=post class=add-entry>
         <dl>
             <input type=text size=25 name=id placeholder="Customer ID">
-            <input type=text size=25 name=intl_plan placeholder="International Plan">
-            <input type=text size=25 name=vm_plan placeholder="Voice Mail Plan">
+            <input type=text size=25 name=intl_plan placeholder="International Plan (Yes/No)">
+            <input type=text size=25 name=vm_plan placeholder="Voice Mail Plan (Yes/No)">
             <input type=text size=25 name=vm_msg placeholder="Voice Mail Msgs">
             <input type=text size=25 name=day_mins placeholder="Total Day Mins">
             <input type=text size=25 name=eve_mins placeholder="Total Eve Mins">
@@ -59,7 +65,7 @@
             <input type=text size=25 name=intl_mins placeholder="Total International Mins">
             <input type=text size=25 name=intl_calls placeholder="Total International Calls">
             <input type=text size=25 name=service_calls placeholder="Customer Service Calls">
-            <input type=text size=25 name=churn_label placeholder="Churn Label">
+            <input type=text size=25 name=churn_label placeholder="Churn Label (Yes/No)">
             <input type=submit value=Add>
         </dl>
     </form>
@@ -67,8 +73,8 @@
     <form action="{{ url_for('predict_churn') }}" method=post class=predict>
         <dl>
             <input type=text size=25 name=id placeholder="Customer ID">
-            <input type=text size=25 name=intl_plan placeholder="International Plan">
-            <input type=text size=25 name=vm_plan placeholder="Voice Mail Plan">
+            <input type=text size=25 name=intl_plan placeholder="International Plan (Yes/No)">
+            <input type=text size=25 name=vm_plan placeholder="Voice Mail Plan (Yes/No)">
             <input type=text size=25 name=vm_msg placeholder="Voice Mail Msgs">
             <input type=text size=25 name=day_mins placeholder="Total Day Mins">
             <input type=text size=25 name=eve_mins placeholder="Total Eve Mins">
