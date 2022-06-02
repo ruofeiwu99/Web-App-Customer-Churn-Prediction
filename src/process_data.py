@@ -1,7 +1,21 @@
+import logging.config
+
 import pandas as pd
 
+# pylint: disable=locally-disabled, invalid-name
 
-def process_data(raw_data_path, final_data_path):
-    data = pd.read_csv(raw_data_path)
+logging.config.fileConfig('config/logging/local.conf')
+logger = logging.getLogger('process-data')
+
+
+def clean_data(data: pd.DataFrame) -> pd.DataFrame:
+    """
+    Clean raw dataframe
+    Args:
+        data (obj: pd.DataFrame): raw dataframe
+    Returns:
+        data (obj: pd.DataFrame): cleaned dataframe
+    """
+    # change churn labels to Yes/No
     data['churn'] = data['churn'].map({0: 'No', 1: 'Yes'})
-    data.to_csv(final_data_path, index=False)
+    return data
