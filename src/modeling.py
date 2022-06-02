@@ -1,6 +1,6 @@
 import logging.config
 
-from typing import List, Tuple
+from typing import List, Tuple, Union
 import pickle
 
 import pandas as pd
@@ -14,13 +14,53 @@ logging.config.fileConfig('config/logging/local.conf')
 logger = logging.getLogger('modeling')
 
 
-def train_model(data: pd.DataFrame, used_features: List[str], test_size: float, random_state: int) -> Tuple:
+def select_features(data: pd.DataFrame, features: List[str]) -> Union[None, pd.DataFrame]:
+    """
+    Select features from the dataframe
+    Args:
+        data (obj: pd.DataFrame): dataframe
+        features (List[str]): features to be selected
+
+    Returns:
+        data (obj: pd.DataFrame): selected dataframe
+    """
+    if features is None or len(features) == 0:
+        return pd.DataFrame()
+    else:
+        valid_features = []
+
+        for feature in features:
+            if feature in data.columns:
+                valid_features.append(feature)
+        if len(valid_features) == 0:
+            return pd.DataFrame()
+        else:
+            logger.info("Features for model training are selected: {}".format(valid_features))
+            return data[valid_features]
+
+
+def select_target(data: pd.DataFrame, target: str) -> Union[None, pd.DataFrame]:
+    # select target
+    if target is None:
+        logger.error("Error: target column is None.")
+        return None
+    else:
+        if target in data.columns:
+            logger.info("Target column for model training selected.")
+            return data[target]
+        else:
+            logger.error("Error: target column not found in the dataset.")
+            raise KeyError("%s is not in the input dataframe." % target)
+
+
+def train_model(data: pd.DataFrame, used_features: List[str], target: str, test_size: float, random_state: int) -> Tuple:
     """
     Perform train test split, train the random forest model on training data, and save train data, test data as well
     as trained model object
     Args:
         data (obj: pd.DataFrame): processed dataframe
         used_features (List[str]): features used in the random forest model
+        target (str): target column name
         test_size (float): proportion of test data
         random_state (int): random seed for train test split and random forest model
 
@@ -31,9 +71,9 @@ def train_model(data: pd.DataFrame, used_features: List[str], test_size: float, 
         y_train (obj: pd.DataFrame): train target
         y_test (obj: pd.DataFrame): test target
     """
-    X = data[used_features]
+    X = select_features(data, used_features)
     X = pd.get_dummies(data=X, drop_first=True)
-    y = data['churn']
+    y = select_target(data, target)
 
     # train test split
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
@@ -87,6 +127,16 @@ def save_train_test(X_train: pd.DataFrame, X_test: pd.DataFrame, y_train: pd.Dat
 
 
 def pred_one_record(rf_model: RandomForestClassifier, columns: List[str], record_df: pd.DataFrame) -> int:
+    """
+    Make predictions on a single input record
+    Args:
+        rf_model (obj: RandomForestClassifier): random forest model object
+        columns (List[str]): list of columns to be used in the prediction
+        record_df (obj: pd.DataFrame): input record
+
+    Returns:
+        pred (int): prediction if a customer is likely to churn 1: Yes, 0: No
+    """
     record_df = record_df[columns]
     transformed_record = pd.get_dummies(record_df)
     pred_class = rf_model.predict(transformed_record)[0]
@@ -94,6 +144,15 @@ def pred_one_record(rf_model: RandomForestClassifier, columns: List[str], record
 
 
 def make_predictions(rf_model: RandomForestClassifier, X_test: pd.DataFrame) -> pd.DataFrame:
+    """
+    Make predictions on test set
+    Args:
+        rf_model (obj: RandomForestClassifier): random forest model object
+        X_test (obj: pd.DataFrame): test features
+
+    Returns:
+        pred (obj: pd.DataFrame): dataframe containing predicted churn labels
+    """
     # make predictions
     ypred_test = rf_model.predict(X_test)
     pred_df = pd.DataFrame({'pred_class': ypred_test})
@@ -101,9 +160,20 @@ def make_predictions(rf_model: RandomForestClassifier, X_test: pd.DataFrame) -> 
 
 
 def eval_performance(pred_res: pd.DataFrame, y_test: pd.DataFrame) -> Tuple:
-    # compute performance metrics and save
+    """
+    Evaluate performance of the model by computing accuracy, confusion matrix, and classification report
+    Args:
+        pred_res (obj: pd.DataFrame): dataframe containing predicted churn labels
+        y_test (obj: pd.DataFrame): dataframe containing test target
+
+    Returns:
+        accuracy (float): accuracy of the model
+        confusion_matrix (obj: pd.DataFrame): confusion matrix
+        classification_report (str): classification report
+    """
     ypred_test = pred_res['pred_class']
 
+    # compute model performance metrics
     confusion = confusion_matrix(y_test, ypred_test)
     accuracy = accuracy_score(y_test, ypred_test)
     class_report = classification_report(y_test, ypred_test)
