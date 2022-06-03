@@ -10,6 +10,15 @@ logger = logging.getLogger('s3-interaction')
 
 
 def parse_s3(s3path: str) -> typing.Tuple[str, str]:
+    """
+    Parse s3 path to get bucket name and file path
+    Args:
+        s3path (str): path to s3
+
+    Returns:
+        s3bucket (str): bucket name
+        s3_path (str): file path
+    """
     regex = r"s3://([\w._-]+)/([\w./_-]+)"
 
     m = re.match(regex, s3path)
@@ -20,6 +29,15 @@ def parse_s3(s3path: str) -> typing.Tuple[str, str]:
 
 
 def upload_file_to_s3(local_path: str, s3path: str) -> None:
+    """
+    Upload raw data to s3
+    Args:
+        local_path (str): local path to raw data
+        s3path (str): s3 path
+
+    Returns:
+        None
+    """
     s3bucket, s3_just_path = parse_s3(s3path)
 
     s3 = boto3.resource("s3")
@@ -36,6 +54,15 @@ def upload_file_to_s3(local_path: str, s3path: str) -> None:
 
 
 def download_file_from_s3(local_path: str, s3path: str) -> None:
+    """
+    Download data from s3 and save to local path
+    Args:
+        local_path (str): local path to save data
+        s3path (str): s3 path
+
+    Returns:
+        None
+    """
     s3bucket, s3_just_path = parse_s3(s3path)
 
     s3 = boto3.resource("s3")
