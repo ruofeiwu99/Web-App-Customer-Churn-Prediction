@@ -14,7 +14,7 @@ Base = declarative_base()
 
 
 class Customer(Base):
-    """Creates a data model for the database to be set up for capturing churn data."""
+    """Creates a data model for the database to be set up for capturing customer data."""
     __tablename__ = "churn"
 
     id = Column(Integer, primary_key=True)
@@ -44,11 +44,10 @@ class Customer(Base):
 
 
 def create_db(engine_string: str) -> None:
-    """Create database with churn data model from provided engine string.
+    """Create database with customer data model from provided engine string.
 
     Args:
-        engine_string (str): SQLAlchemy engine string specifying which database
-            to write to
+        engine_string (str): SQLAlchemy engine string specifying which database to write to
 
     Returns: None
     """
@@ -102,6 +101,24 @@ class ChurnManager:
                        voice_mail_plan: str, number_vmail_messages: int, total_day_minutes: float,
                        total_eve_minutes: float, total_night_minutes: float, total_intl_minutes: float,
                        total_intl_calls: int, customer_service_calls: int, churn: str):
+        """
+        Add one customer record to the database.
+        Args:
+            cust_id (int): customer id (unique)
+            international_plan (str): whether a customer has international plan ("Yes" or "No")
+            voice_mail_plan (str): whether a customer has voice mail plan ("Yes" or "No")
+            number_vmail_messages (int): number of voice mail messages
+            total_day_minutes (float): total minutes used on a day-use plan
+            total_eve_minutes (float): total minutes used on an evening-use plan
+            total_night_minutes (float): total minutes used on a night-use plan
+            total_intl_minutes (float): total minutes used on an international plan
+            total_intl_calls (int): total calls made on an international plan
+            customer_service_calls (int): total number of customer service calls
+            churn (str): churn label for a customer ("Yes" or "No")
+
+        Returns:
+            None
+        """
         session = self.session
         customer = Customer(id=cust_id, international_plan=international_plan, voice_mail_plan=voice_mail_plan,
                             number_vmail_messages=number_vmail_messages, total_day_minutes=total_day_minutes,
