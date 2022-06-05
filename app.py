@@ -1,6 +1,8 @@
 import logging.config
+
 import sqlite3
 import traceback
+import pickle
 
 import pandas as pd
 import yaml
@@ -66,36 +68,7 @@ def index():
         return render_template('error.html')
     except:
         traceback.print_exc()
-        logger.error("Not able to display tracks, error page returned")
-        return render_template('error.html')
-
-
-@app.route('/add', methods=['POST'])
-def add_entry():
-    """View that process a POST with new customer record
-
-    Returns:
-        redirect to index page
-    """
-    try:
-        churn_manager.add_one_record(int(request.form['id']), request.form['intl_plan'], request.form['vm_plan'],
-                                     int(request.form['vm_msg']), float(request.form['day_mins']),
-                                     float(request.form['eve_mins']), float(request.form['night_mins']),
-                                     float(request.form['intl_mins']), int(request.form['intl_calls']),
-                                     int(request.form['service_calls']), request.form['churn_label'])
-        logger.info("One customer record added: customer id %s", request.form['id'])
-        return redirect(url_for('index'))
-    except sqlite3.OperationalError as e:
-        logger.error(
-            "Error page returned. Not able to add song to local sqlite "
-            "database: %s. Error: %s ",
-            app.config['SQLALCHEMY_DATABASE_URI'], e)
-        return render_template('error.html')
-    except sqlalchemy.exc.OperationalError as e:
-        logger.error(
-            "Error page returned. Not able to add song to MySQL database: %s. "
-            "Error: %s ",
-            app.config['SQLALCHEMY_DATABASE_URI'], e)
+        logger.error("Not able to display customer data, error page returned")
         return render_template('error.html')
 
 
@@ -106,9 +79,16 @@ def predict_churn():
         Returns:
             Redirect to index page
     """
+    intl_plan = 'No'
+    if 'IntlPlan' in request.form:
+        intl_plan = 'Yes'
+    vm_plan = 'No'
+    if 'VMPlan' in request.form:
+        vm_plan = 'Yes'
+
     record = {'id': int(request.form['id']),
-              'international_plan': request.form['intl_plan'],
-              'voice_mail_plan': request.form['vm_plan'],
+              'international_plan': intl_plan,
+              'voice_mail_plan': vm_plan,
               'number_vmail_messages': int(request.form['vm_msg']),
               'total_day_minutes': float(request.form['day_mins']),
               'total_eve_minutes': float(request.form['eve_mins']),
@@ -123,14 +103,21 @@ def predict_churn():
     with open('config/config.yaml', "r") as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
 
-    churn_pred = pred_one_record(**config['modeling']['pred_one_record'], record_df=record_df)
+    try:
+        with open('models/rf_model.pkl', 'rb') as f:
+            rf_model = pickle.load(f)
+    except FileNotFoundError:
+        logger.error("File not found, please check if model object is saved")
+    churn_pred = pred_one_record(rf_model,
+                                 columns=config['modeling']['pred_one_record']['columns'],
+                                 record_df=record_df)
     if churn_pred == 0:
         final_churn_pred = 'No'
     else:
         final_churn_pred = 'Yes'
 
     try:
-        churn_manager.add_one_record(int(request.form['id']), request.form['intl_plan'], request.form['vm_plan'],
+        churn_manager.add_one_record(int(request.form['id']), intl_plan, vm_plan,
                                      int(request.form['vm_msg']), float(request.form['day_mins']),
                                      float(request.form['eve_mins']), float(request.form['night_mins']),
                                      float(request.form['intl_mins']), int(request.form['intl_calls']),
@@ -139,13 +126,13 @@ def predict_churn():
         return redirect(url_for('index'))
     except sqlite3.OperationalError as e:
         logger.error(
-            "Error page returned. Not able to add song to local sqlite "
+            "Error page returned. Not able to add customer record to local sqlite "
             "database: %s. Error: %s ",
             app.config['SQLALCHEMY_DATABASE_URI'], e)
         return render_template('error.html')
     except sqlalchemy.exc.OperationalError as e:
         logger.error(
-            "Error page returned. Not able to add song to MySQL database: %s. "
+            "Error page returned. Not able to add customer record to MySQL database: %s. "
             "Error: %s ",
             app.config['SQLALCHEMY_DATABASE_URI'], e)
         return render_template('error.html')
