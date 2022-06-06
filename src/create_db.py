@@ -3,7 +3,7 @@ import sqlite3
 
 import pandas as pd
 import sqlalchemy
-from sqlalchemy import Column, Integer, String, Float, Boolean
+from sqlalchemy import Column, Integer, String, Float
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from flask_sqlalchemy import SQLAlchemy
@@ -15,7 +15,7 @@ Base = declarative_base()
 
 class Customer(Base):
     """Creates a data model for the database to be set up for capturing customer data."""
-    __tablename__ = "churn"
+    __tablename__ = 'churn'
 
     id = Column(Integer, primary_key=True)
     state = Column(String(2), unique=False, nullable=True)
@@ -56,9 +56,9 @@ def create_db(engine_string: str) -> None:
     try:
         Base.metadata.create_all(engine)
     except sqlalchemy.exe.OperationalError as e:
-        logger.error("Cannot connect to the database. Error: %s", e)
+        logger.error('Cannot connect to the database. Error: %s', e)
     else:
-        logger.info("Database created.")
+        logger.info('Database created.')
 
 
 class ChurnManager:
@@ -71,7 +71,7 @@ class ChurnManager:
             session_maker = sqlalchemy.orm.sessionmaker(bind=engine)
             self.session = session_maker()
         else:
-            raise ValueError("Need either an engine string or a Flask app to initialize")
+            raise ValueError('Need either an engine string or a Flask app to initialize')
 
     def close(self) -> None:
         # closes session
@@ -89,13 +89,13 @@ class ChurnManager:
             session.add_all(data_list)
             session.commit()
         except sqlalchemy.exc.OperationalError as e:
-            logger.error("You might have connection error. Have you configured SQLALCHEMY_DATABASE_URI "
-                         "variable correctly and connected to Northwestern VPN? Error: %s ", e)
+            logger.error('You might have connection error. Have you configured SQLALCHEMY_DATABASE_URI '
+                         'variable correctly and connected to Northwestern VPN? Error: %s ', e)
         except sqlite3.OperationalError as e:
-            logger.error("Error page returned. Not able to add customer data to local sqlite "
-                         "database. Is it the right path? Error: %s ", e)
+            logger.error('Error page returned. Not able to add customer data to local sqlite '
+                         'database. Is it the right path? Error: %s ', e)
         else:
-            logger.info("%d records were added to the table", len(data_list))
+            logger.info('%d records were added to the table', len(data_list))
 
     def add_one_record(self, cust_id: int, international_plan: str,
                        voice_mail_plan: str, number_vmail_messages: int, total_day_minutes: float,
@@ -127,4 +127,4 @@ class ChurnManager:
                             customer_service_calls=customer_service_calls, churn=churn)
         session.add(customer)
         session.commit()
-        logger.info("One customer record added to database: customer id %s", cust_id)
+        logger.info('One customer record added to database: customer id %s', cust_id)

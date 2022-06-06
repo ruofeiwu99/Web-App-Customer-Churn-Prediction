@@ -26,34 +26,45 @@ def select_features(data: pd.DataFrame, features: List[str]) -> Union[None, pd.D
     """
     if features is None or len(features) == 0:
         return pd.DataFrame()
-    else:
-        valid_features = []
 
-        for feature in features:
-            if feature in data.columns:
-                valid_features.append(feature)
-        if len(valid_features) == 0:
-            return pd.DataFrame()
-        else:
-            logger.info("Features for model training are selected: {}".format(valid_features))
-            return data[valid_features]
+    valid_features = []
+
+    for feature in features:
+        if feature in data.columns:
+            valid_features.append(feature)
+
+    if len(valid_features) == 0:
+        return pd.DataFrame()
+
+    logger.info('Features for model training are selected: %s', valid_features)
+    return data[valid_features]
 
 
 def select_target(data: pd.DataFrame, target: str) -> Union[None, pd.DataFrame]:
+    """
+    Select target column from the dataframe
+    Args:
+        data (obj: pd.DataFrame): dataframe
+        target (str): target column name
+
+    Returns:
+        target (Union[None, pd.DataFrame]): target column; None if target column is not found in the dataframe
+    """
     # select target
     if target is None:
-        logger.error("Error: target column is None.")
+        logger.error('Error: target column is None.')
         return None
-    else:
-        if target in data.columns:
-            logger.info("Target column for model training selected.")
-            return data[target]
-        else:
-            logger.error("Error: target column not found in the dataset.")
-            raise KeyError("%s is not in the input dataframe." % target)
+
+    if target in data.columns:
+        logger.info('Target column for model training selected.')
+        return data[target]
+
+    logger.error('Error: target column not found in the dataset.')
+    raise KeyError(f'{target} is not in the input dataframe.')
 
 
-def train_model(data: pd.DataFrame, used_features: List[str], target: str, test_size: float, random_state: int) -> Tuple:
+def train_model(data: pd.DataFrame, used_features: List[str], target: str, test_size: float,
+                random_state: int) -> Tuple:
     """
     Perform train test split, train the random forest model on training data, and save train data, test data as well
     as trained model object
@@ -100,7 +111,7 @@ def save_model(model_obj: RandomForestClassifier, model_path: str) -> None:
     # save model
     with open(model_path, 'wb') as f:
         pickle.dump(model_obj, f)
-    logger.info("Random forest model saved.")
+    logger.info('Random forest model saved.')
 
 
 def save_train_test(X_train: pd.DataFrame, X_test: pd.DataFrame, y_train: pd.DataFrame, y_test: pd.DataFrame,
@@ -196,8 +207,8 @@ def save_model_eval(accuracy: float, class_report: str, conf_mat: pd.DataFrame, 
     Returns:
         None
     """
-    with open(model_eval_path, 'w') as f:
-        f.write('Accuracy on test: %0.3f \n' % accuracy)
+    with open(model_eval_path, 'w', encoding='utf8') as f:
+        f.write(f'Accuracy on test: {accuracy}\n')
         f.write('-------------------Classification Report--------------------\n')
         f.write(class_report)
         f.write('-------------------Confusion Matrix--------------------\n')
