@@ -10,7 +10,7 @@ MAX_ROWS_SHOW = 10
 
 # RDS Database Connection Config credentials
 conn_type = "mysql+pymysql"
-#host = os.environ.get("MYSQL_HOST")
+host = os.environ.get("MYSQL_HOST")
 user = os.environ.get("MYSQL_USER")
 password = os.environ.get("MYSQL_PASSWORD")
 port = os.environ.get("MYSQL_PORT")
@@ -20,9 +20,7 @@ db_name = os.environ.get("DATABASE_NAME")
 folder = 'data'
 local_db_name = 'customer.db'
 
-#SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
-SQLALCHEMY_DATABASE_URI = None
-host = None
+SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
 
 if SQLALCHEMY_DATABASE_URI is not None:
     pass
