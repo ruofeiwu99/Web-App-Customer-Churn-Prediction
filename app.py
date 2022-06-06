@@ -12,6 +12,7 @@ from flask import Flask, render_template, request, redirect, url_for
 # For setting up the Flask-SQLAlchemy database session
 from src.create_db import ChurnManager, Customer
 from src.modeling import pred_one_record
+from src.helper import validate_input
 
 # Initialize the Flask application
 app = Flask(__name__, template_folder="app/templates",
@@ -85,21 +86,34 @@ def predict_churn():
     vm_plan = 'No'
     if 'VMPlan' in request.form:
         vm_plan = 'Yes'
+    cust_id = request.form['id']
+    vm_msg = request.form['vm_msg']
+    day_mins = request.form['day_mins']
+    eve_mins = request.form['eve_mins']
+    night_mins = request.form['night_mins']
+    intl_mins = request.form['intl_mins']
+    intl_calls = request.form['intl_calls']
+    service_calls = request.form['service_calls']
 
-    record = {'id': int(request.form['id']),
+    # Validate input
+    record = {'id': cust_id,
               'international_plan': intl_plan,
               'voice_mail_plan': vm_plan,
-              'number_vmail_messages': int(request.form['vm_msg']),
-              'total_day_minutes': float(request.form['day_mins']),
-              'total_eve_minutes': float(request.form['eve_mins']),
-              'total_night_minutes': float(request.form['night_mins']),
-              'total_intl_minutes': float(request.form['intl_mins']),
-              'total_intl_calls': int(request.form['intl_calls']),
-              'customer_service_calls': int(request.form['service_calls'])}
+              'number_vmail_messages': vm_msg,
+              'total_day_minutes': day_mins,
+              'total_eve_minutes': eve_mins,
+              'total_night_minutes': night_mins,
+              'total_intl_minutes': intl_mins,
+              'total_intl_calls': intl_calls,
+              'customer_service_calls': service_calls}
     record_df = pd.DataFrame(record, index=[0])
+    try:
+        valid_record_df = validate_input(record_df)
+    except ValueError as e:
+        logger.error("Error: %s", e)
+        return render_template('error.html')
 
-    # Ensure all columns (& order) match the original training data
-    # validated_df = model.validate_dataframe(input_df)
+    # Predict churn label
     with open('config/config.yaml', "r") as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
 
@@ -110,18 +124,22 @@ def predict_churn():
         logger.error("File not found, please check if model object is saved")
     churn_pred = pred_one_record(rf_model,
                                  columns=config['modeling']['pred_one_record']['columns'],
-                                 record_df=record_df)
+                                 record_df=valid_record_df)
     if churn_pred == 0:
         final_churn_pred = 'No'
     else:
         final_churn_pred = 'Yes'
 
     try:
-        churn_manager.add_one_record(int(request.form['id']), intl_plan, vm_plan,
-                                     int(request.form['vm_msg']), float(request.form['day_mins']),
-                                     float(request.form['eve_mins']), float(request.form['night_mins']),
-                                     float(request.form['intl_mins']), int(request.form['intl_calls']),
-                                     int(request.form['service_calls']), final_churn_pred)
+        churn_manager.add_one_record(valid_record_df['id'].item(), intl_plan, vm_plan,
+                                     valid_record_df['number_vmail_messages'].item(),
+                                     valid_record_df['total_day_minutes'].item(),
+                                     valid_record_df['total_eve_minutes'].item(),
+                                     valid_record_df['total_night_minutes'].item(),
+                                     valid_record_df['total_intl_minutes'].item(),
+                                     valid_record_df['total_intl_calls'].item(),
+                                     valid_record_df['customer_service_calls'].item(),
+                                     final_churn_pred)
         logger.info("One customer record added: customer id %s", request.form['id'])
         return redirect(url_for('index'))
     except sqlite3.OperationalError as e:
@@ -131,6 +149,13 @@ def predict_churn():
             app.config['SQLALCHEMY_DATABASE_URI'], e)
         return render_template('error.html')
     except sqlalchemy.exc.OperationalError as e:
+        logger.error(
+            "Error page returned. Not able to add customer record to MySQL database: %s. "
+            "Error: %s ",
+            app.config['SQLALCHEMY_DATABASE_URI'], e)
+        return render_template('error.html')
+    # exception handling for non-unique customer id
+    except sqlalchemy.exc.IntegrityError as e:
         logger.error(
             "Error page returned. Not able to add customer record to MySQL database: %s. "
             "Error: %s ",
