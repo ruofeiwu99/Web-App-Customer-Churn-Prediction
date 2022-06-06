@@ -110,11 +110,17 @@ class ChurnManager:
             None
         """
         session = self.session
-        customer = Customer(id=cust_id, international_plan=international_plan, voice_mail_plan=voice_mail_plan,
-                            number_vmail_messages=number_vmail_messages, total_day_minutes=total_day_minutes,
-                            total_eve_minutes=total_eve_minutes, total_night_minutes=total_night_minutes,
-                            total_intl_minutes=total_intl_minutes, total_intl_calls=total_intl_calls,
-                            customer_service_calls=customer_service_calls, churn=churn)
-        session.add(customer)
-        session.commit()
-        logger.info('One customer record added to database: customer id %s', cust_id)
+        try:
+            customer = Customer(id=cust_id, international_plan=international_plan, voice_mail_plan=voice_mail_plan,
+                                number_vmail_messages=number_vmail_messages, total_day_minutes=total_day_minutes,
+                                total_eve_minutes=total_eve_minutes, total_night_minutes=total_night_minutes,
+                                total_intl_minutes=total_intl_minutes, total_intl_calls=total_intl_calls,
+                                customer_service_calls=customer_service_calls, churn=churn)
+        # exception handling for non-unique customer id
+        except sqlalchemy.exc.IntegrityError:
+            logger.error('Customer id %d already exists in the database.', cust_id)
+
+        else:
+            session.add(customer)
+            session.commit()
+            logger.info('One customer record added to database: customer id %s', cust_id)
