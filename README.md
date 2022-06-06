@@ -160,7 +160,7 @@ To create the database specified in the environment variable `SQLALCHEMY_DATABAS
 run the following command:
 
 ```bash
-docker run -e SQLALCHEMY_DATABASE_URI final-project run.py create_db
+docker run --mount type=bind,source="$(pwd)"/data,target=/app/data/ -e SQLALCHEMY_DATABASE_URI final-project run.py create_db
 ```
 The `--mount` argument allows the app to access your local `data/` folder and save the SQLite database there 
 so that it is available after the Docker container finishes.
