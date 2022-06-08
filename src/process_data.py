@@ -1,4 +1,5 @@
 import logging
+from typing import List
 
 import pandas as pd
 
@@ -26,62 +27,37 @@ def clean_data(data: pd.DataFrame, target: str) -> pd.DataFrame:
     return data
 
 
-def validate_input(data: pd.DataFrame) -> pd.DataFrame:
+def validate_input(data: pd.DataFrame, int_cols: List[str], numeric_cols: List[str]) -> pd.DataFrame:
     """
-    Validate input dataframe
+    Validate user input data
     Args:
-        data (obj: pd.DataFrame): user input data
+        data (obj: pd.DataFrame): raw dataframe containing user input
+        int_cols (List[str]): list of integer columns
+        numeric_cols (List[str]): list of numeric columns
 
     Returns:
-        data (obj: pd.DataFrame): validated dataframe
+        data (obj: pd.DataFrame): validated user input data
     """
-    try:
-        data['id'] = data['id'].astype(int)
-    except ValueError:
-        logger.error("Error: ID must be an integer")
-        raise ValueError("ID must be an integer")
 
-    try:
-        data['number_vmail_messages'] = data['number_vmail_messages'].astype(int)
-    except ValueError:
-        logger.error("Error: Number of voicemail messages must be an integer")
-        raise ValueError("Number of voicemail messages must be an integer")
-
-    try:
-        data['total_day_minutes'] = data['total_day_minutes'].astype(float)
-    except ValueError:
-        logger.error("Error: Total day minutes must be a float")
-        raise ValueError("Total day minutes must be a float")
-
-    try:
-        data['total_eve_minutes'] = data['total_eve_minutes'].astype(float)
-    except ValueError:
-        logger.error("Error: Total evening minutes must be a float")
-        raise ValueError("Total evening minutes must be a float")
-
-    try:
-        data['total_night_minutes'] = data['total_night_minutes'].astype(float)
-    except ValueError:
-        logger.error("Error: Total night minutes must be a float")
-        raise ValueError("Total night minutes must be a float")
-
-    try:
-        data['total_intl_minutes'] = data['total_intl_minutes'].astype(float)
-    except ValueError:
-        logger.error("Error: Total international minutes must be a float")
-        raise ValueError("Total international minutes must be a float")
-
-    try:
-        data['total_intl_calls'] = data['total_intl_calls'].astype(int)
-    except ValueError:
-        logger.error("Error: Total international calls must be an integer")
-        raise ValueError("Total international calls must be an integer")
-
-    try:
-        data['customer_service_calls'] = data['customer_service_calls'].astype(int)
-    except ValueError:
-        logger.error("Error: Customer service calls must be an integer")
-        raise ValueError("Customer service calls must be an integer")
-
+    for col in data.columns:
+        if col in int_cols:
+            try:
+                data[col] = data[col].astype(int)
+            except ValueError:
+                logger.error('Error: %s must be an integer', col)
+                raise ValueError(f'{col} must be an integer')
+            else:
+                if data[col].item() < 0:
+                    logger.error('Error: %s must be greater than or equal to 0', col)
+                    raise ValueError(f'{col} must be greater than or equal to 0')
+        elif col in numeric_cols:
+            try:
+                data[col] = data[col].astype(float)
+            except ValueError:
+                logger.error('Error: %s must be numeric', col)
+                raise ValueError(f'{col} must be numeric')
+            else:
+                if data[col].item() < 0:
+                    logger.error('Error: %s must be greater than or equal to 0', col)
+                    raise ValueError(f'{col} must be greater than or equal to 0')
     return data
-
