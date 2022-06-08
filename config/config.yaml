@@ -4,6 +4,9 @@ process_data:
   cleaned_data_filename: final_data.csv
   clean_data:
     target: 'churn'
+  validate_input:
+    int_cols: ['id', 'number_vmail_messages', 'total_intl_calls', 'customer_service_calls']
+    numeric_cols: ['total_day_minutes', 'total_eve_minutes', 'total_night_minutes', 'total_intl_minutes']
 data_handling:
   process_data:
     raw_data_path: data/raw/raw_data.csv
