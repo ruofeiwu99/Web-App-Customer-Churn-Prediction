@@ -18,15 +18,15 @@ class Customer(Base):
     __tablename__ = 'churn'
 
     id = Column(Integer, primary_key=True)
-    international_plan = Column(String(3), unique=False, nullable=True)
-    voice_mail_plan = Column(String(3), unique=False, nullable=True)
-    number_vmail_messages = Column(Integer, unique=False, nullable=True)
-    total_day_minutes = Column(Float, unique=False, nullable=True)
-    total_eve_minutes = Column(Float, unique=False, nullable=True)
-    total_night_minutes = Column(Float, unique=False, nullable=True)
-    total_intl_minutes = Column(Float, unique=False, nullable=True)
-    total_intl_calls = Column(Integer, unique=False, nullable=True)
-    customer_service_calls = Column(Integer, unique=False, nullable=True)
+    international_plan = Column(String(3), unique=False, nullable=False)
+    voice_mail_plan = Column(String(3), unique=False, nullable=False)
+    number_vmail_messages = Column(Integer, unique=False, nullable=False)
+    total_day_minutes = Column(Float, unique=False, nullable=False)
+    total_eve_minutes = Column(Float, unique=False, nullable=False)
+    total_night_minutes = Column(Float, unique=False, nullable=False)
+    total_intl_minutes = Column(Float, unique=False, nullable=False)
+    total_intl_calls = Column(Integer, unique=False, nullable=False)
+    customer_service_calls = Column(Integer, unique=False, nullable=False)
     churn = Column(String(3), unique=False, nullable=False)
 
     def __repr__(self):
