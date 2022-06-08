@@ -8,7 +8,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from flask_sqlalchemy import SQLAlchemy
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('create-db')
 
 Base = declarative_base()
 
