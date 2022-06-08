@@ -141,7 +141,7 @@ docker run --mount type=bind,source="$(pwd)",target=/app/ final-project run.py p
 The following command will calculate accuracy, generate a classification report and a confusion
 matrix to evaluate the model performance and save the evaluation metrics to the `deliverables` directory:
 ```bash
-docker run --mount type=bind,source="$(pwd)",target=/app/ final-project run.py evalaute
+docker run --mount type=bind,source="$(pwd)",target=/app/ final-project run.py evaluate
 ```
 
 ## Running the app 
