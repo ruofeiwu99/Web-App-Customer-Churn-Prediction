@@ -1,11 +1,10 @@
-import logging.config
+import logging
 import re
 import typing
 
 import boto3
 import botocore
 
-logging.config.fileConfig('config/logging/local.conf')
 logger = logging.getLogger('s3-interaction')
 
 
