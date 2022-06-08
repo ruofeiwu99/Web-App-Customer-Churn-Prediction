@@ -1,4 +1,4 @@
-import logging.config
+import logging
 
 from typing import List, Tuple, Union
 import pickle
@@ -10,7 +10,6 @@ from sklearn.metrics import confusion_matrix, accuracy_score, classification_rep
 
 # pylint: disable=locally-disabled, invalid-name
 
-logging.config.fileConfig('config/logging/local.conf')
 logger = logging.getLogger('modeling')
 
 
