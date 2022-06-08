@@ -105,11 +105,11 @@ If you want to make changes to file paths, you can change the corresponding comm
 ### 2. Running Entire Model Pipeline
 To run the entire model pipeline, run the following command:
 ```bash
-docker build -f dockerfiles/Dockerfile -t final-project .
+docker build -f dockerfiles/Dockerfile.pipeline -t final-project-pipeline .
 ```
 
 ```bash
-docker run --mount type=bind,source="$(pwd)",target=/app/ -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY final-project run.py all
+docker run --mount type=bind,source="$(pwd)",target=/app/ -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY final-project-pipeline run-pipeline.sh
 ```
 
 ### 3. Executing Each Step in the Model Pipeline
@@ -119,8 +119,7 @@ docker build -f dockerfiles/Dockerfile -t final-project .
 ```
 #### 3.2 Download data from S3 bucket
 ```bash
-docker run --mount type=bind,source="$(pwd)",target=/app/ -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY final-project 
-run.py acquire_data
+docker run --mount type=bind,source="$(pwd)",target=/app/ -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY final-project run.py acquire_data
 ```
 #### 3.3 Clean raw data
 The following command will clean the raw data and save it to the `data/final` directory:
