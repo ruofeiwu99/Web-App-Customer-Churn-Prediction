@@ -14,7 +14,7 @@ from flask import Flask, render_template, request, redirect, url_for
 # For setting up the Flask-SQLAlchemy database session
 from src.create_db import ChurnManager, Customer
 from src.modeling import pred_one_record
-from src.helper import validate_input
+from src.process_data import validate_input
 
 # Initialize the Flask application
 app = Flask(__name__, template_folder='app/templates',
