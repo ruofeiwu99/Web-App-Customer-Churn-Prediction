@@ -116,6 +116,12 @@ class ChurnManager:
                                 total_eve_minutes=total_eve_minutes, total_night_minutes=total_night_minutes,
                                 total_intl_minutes=total_intl_minutes, total_intl_calls=total_intl_calls,
                                 customer_service_calls=customer_service_calls, churn=churn)
+
+        except sqlalchemy.exc.OperationalError as e:
+            logger.error(
+                "Cannot connect to the database.  "
+                "Please check configuration of SQLALCHEMY_DATABASE_URI and VPN. Error: %s ", e)
+
         # exception handling for non-unique customer id
         except sqlalchemy.exc.IntegrityError:
             logger.error('Customer id %d already exists in the database.', cust_id)
