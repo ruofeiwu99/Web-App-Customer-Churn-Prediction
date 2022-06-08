@@ -97,7 +97,10 @@ def predict_churn():
     intl_calls = request.form['intl_calls']
     service_calls = request.form['service_calls']
 
-    # Validate input
+    # Load configuration file
+    with open('config/config.yaml', 'r', encoding='utf8') as f:
+        config = yaml.load(f, Loader=yaml.FullLoader)
+
     record = {'id': cust_id,
               'international_plan': intl_plan,
               'voice_mail_plan': vm_plan,
@@ -109,16 +112,14 @@ def predict_churn():
               'total_intl_calls': intl_calls,
               'customer_service_calls': service_calls}
     record_df = pd.DataFrame(record, index=[0])
+    # Validate user input data
     try:
-        valid_record_df = validate_input(record_df)
+        valid_record_df = validate_input(record_df, **config['process_data']['validate_input'])
     except ValueError as e:
         logger.error('Error: %s', e)
         return render_template('error.html')
 
     # Predict churn label
-    with open('config/config.yaml', 'r') as f:
-        config = yaml.load(f, Loader=yaml.FullLoader)
-
     try:
         with open('models/rf_model.pkl', 'rb') as f:
             rf_model = pickle.load(f)
