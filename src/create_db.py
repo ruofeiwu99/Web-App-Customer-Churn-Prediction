@@ -119,8 +119,8 @@ class ChurnManager:
 
         except sqlalchemy.exc.OperationalError as e:
             logger.error(
-                "Cannot connect to the database.  "
-                "Please check configuration of SQLALCHEMY_DATABASE_URI and VPN. Error: %s ", e)
+                'Cannot connect to the database.  '
+                'Please check configuration of SQLALCHEMY_DATABASE_URI and VPN. Error: %s ', e)
 
         # exception handling for non-unique customer id
         except sqlalchemy.exc.IntegrityError:
