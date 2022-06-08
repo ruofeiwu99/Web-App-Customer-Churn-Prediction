@@ -76,11 +76,11 @@ if __name__ == '__main__':
     if args.step == 'upload_data':
         upload_file_to_s3(args.local_data_path, args.s3_path)
 
-    if args.step in ['acquire_data', 'all']:
+    elif args.step == 'acquire_data':
         download_file_from_s3(os.path.join(args.raw_data_dir, config['s3']['raw_data_filename']), args.s3_path)
         logger.info('Raw data acquired and saved to %s',
                     os.path.join(args.raw_data_dir, config['s3']['raw_data_filename']))
-    if args.step in ['clean_data', 'all']:
+    elif args.step == 'clean_data':
         try:
             data = pd.read_csv(os.path.join(args.raw_data_dir, config['s3']['raw_data_filename']))
         except FileNotFoundError:
@@ -91,15 +91,15 @@ if __name__ == '__main__':
                                 index=False)
             logger.info('Cleaned dataframe saved to %s',
                         os.path.join(args.cleaned_data_dir, config['process_data']['cleaned_data_filename']))
-    if args.step == 'create_db':
+    elif args.step == 'create_db':
         create_db(args.engine_string)
 
-    if args.step == 'ingest_data':
+    elif args.step == 'ingest_data':
         cm = ChurnManager(engine_string=args.engine_string)
         cm.add_customer_data(args.input_path)
         cm.close()
 
-    elif args.step in ['train_model', 'all']:
+    elif args.step == 'train_model':
         try:
             data = pd.read_csv(os.path.join(args.cleaned_data_dir, config['process_data']['cleaned_data_filename']))
         except FileNotFoundError:
@@ -114,7 +114,7 @@ if __name__ == '__main__':
                             os.path.join(args.y_test_dir, config['modeling']['y_test_filename']))
             logger.info('Model saved to %s', os.path.join(args.model_dir, config['modeling']['model_filename']))
 
-    if args.step in ['predict', 'all']:
+    elif args.step == 'predict':
         try:
             with open(os.path.join(args.model_dir, config['modeling']['model_filename']), 'rb') as f:
                 rf_model = pickle.load(f)
@@ -132,7 +132,7 @@ if __name__ == '__main__':
             logger.info('Prediction results saved to %s',
                         os.path.join(args.pred_result_dir, config['modeling']['pred_result_filename']))
 
-    if args.step in ['evaluate', 'all']:
+    elif args.step == 'evaluate':
         try:
             y_test = pd.read_csv(os.path.join(args.y_test_dir, config['modeling']['y_test_filename']))
             pred_result = pd.read_csv(os.path.join(args.pred_result_dir, config['modeling']['pred_result_filename']))
